@@ -1,0 +1,10 @@
+const express=require("express");
+const router=express.Router();
+const UserController=require('../controllers/user');
+const User = require("../models/user");
+const { Auth } = require('../middleware');
+const userValidators=require("../validators/user");
+router.post("/register",UserController.userRegisterController);
+router.get("/fetch_hotels",Auth,UserController.fetchHotelController);
+router.post("/book_hotel",Auth,UserController.bookHotelController);
+module.exports=router;
