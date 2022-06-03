@@ -4,6 +4,7 @@ module.exports={
     CityModel:require('./city'),
     StateModel:require('./state'),
     BookingModel:require('./booking'),
-    RoomModel:require('./rooms')
+    RoomModel:require('./rooms'),
+    BillModel:require('./bill')
 
 };

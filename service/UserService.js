@@ -3,16 +3,17 @@ const jwt = require('jsonwebtoken');
 const { jwtOption } = require('../config/db.config');
 const bcrypt=require('bcrypt');
 const Service=require('../service/Service');
-const {UserModel,HotelModel,CityModel,StateModel, BookingModel, RoomModel}=require('../models');
+const { Op } = require("sequelize");
+const {UserModel,HotelModel,CityModel,StateModel, BookingModel, RoomModel,BillModel}=require('../models');
 
 class UserService extends Service {
 
     async userRegisterService(params){
         try{
             console.log(params);
-            //Logger.info('U registration service Started for %d', params.mobileNumber);
-            console.log("Registration service for admin started");
-            //const timeNow =this.getDateTime(new Date());
+            
+            console.log("Registration service for user started");
+            
             params.userType = 'USER';
             console.log(params.phone);
 
@@ -26,48 +27,24 @@ class UserService extends Service {
 
             const newUser = await UserModel.create({ ...params});
 
-            //Logger.info('Admin registration successfully completed for user %d', params.mobileNumber);
+            
             console.log("completed");        
             return this.success({ statusCode: 201 });
         
         } catch (error) {
-            //Logger.error(`Admin register service failed for user ${params.mobileNumber}. Error: ${error}`);
+            
             throw (error);
         }
     }
     async fetchHotelService(params){
         try{
-            const {cityId,stateId,address} = params;
-            //console.log(params.cityIdFK);
+            const {cityId,stateId,address, hotelId} = params;
+            
             const filter = { 
                 where: { }, 
                 include: [ 
                     { 
-                        model: RoomModel,where:{},group:{},
-                        include: 
-                            [
-                                { 
-
-                                model: HotelModel,where:{},group:{},
-                                include:{
-                                    model:CityModel,where:{},include:{
-                                        model:StateModel,where:{}
-                                    }
-                                }
-                                // include:[
-                                //     {
-                                //         model:CityModel,where:{},attributes:{ },
-                                //         // include:[
-                                //         //     {
-                                //         //         model:StateModel,where:{}
-                                //         //     }
-                                //         // ]
-                                        
-                                //     }
-                                // ]
-                            }
-                        ]
-                        
+                        model: RoomModel,
                     }], 
                 attributes: [] 
             };
@@ -78,32 +55,32 @@ class UserService extends Service {
             let data;
             
             filter.attributes = ['id', 'roomType','roomPrice','bedType']
-            // console.log(filter.include[0]);
-            // console.log(address);
-            // if(address)
-            // {
-            //     filter.include[0].where["address"]=address;
-            // }
-            filter.include[0].include[0].group=["id"];
-            if(cityId)
-            {
-                filter.include[0].include[0].include.where["id"]=cityId;
-                //console.log("hi");
+           
+            if(hotelId){
+                filter.where = {
+                    id: {
+                        [Op.in]: hotelId.split(','),  
+                    }
+                }
             }
-            if(stateId)
-            {
-                filter.include[0].include[0].include.include.where["id"]=stateId;
+            if(cityId){
+                filter.where={
+                    cityIdFk:{
+                        [Op.in]: cityId.split(','),
+                    }
+                }
             }
+
+            
                   
             
-            //totalCounts = await HotelModel.count({where: filter.include[0].include.where});
-            //console.log(filter.include[0].include[0].include[0].include);
-            data = await RoomModel.findAll({where: filter.where, include: filter.include[0].include, attributes: filter.attributes});
+            
+            
 
-            return this.success({ statusCode: 200, data, totalCounts });
-        
+            data = await HotelModel.findAll({where: filter.where, include: filter.include});
+            return this.success({ statusCode: 200, data });
         } catch (error) {
-            //Logger.error(`fetch seller service failed. Error: ${error}`);
+            
              this.fail({'message':'error found '});
             throw (error);
         }
@@ -111,15 +88,13 @@ class UserService extends Service {
     async bookHotelService(params){
         try{
             
-            //Logger.info('U registration service Started for %d', params.mobileNumber);
-            console.log("Registration service for admin started");
-            //const timeNow =this.getDateTime(new Date());
+            
             
             const isExist = await HotelModel.findOne({ where: {"id":params.hotel_id } })
             if(!isExist){
                 throw this.fail({ message: 'Hotel does not exist', statusCode: 406 });
             }
-            console.log(params.user_id);
+            
 
             const doExist=await UserModel.findOne({where:{"id":params.user_id}});
             if(!doExist){
@@ -127,41 +102,31 @@ class UserService extends Service {
             }
       
              const roomExist=await RoomModel.findOne({where:{"id":params.room_id}});
-            //console.log(doExist);
-            //console.log(roomExist.dataValues);
-            console.log(roomExist.status);
-            if(roomExist.status!="Active"){
+            
+            
+            if(roomExist.roomAval<params.roomAvail){
                 throw this.fail({message:"Room not available"});
             }
-
-            await RoomModel.update({status:"BOOKED" },{ where: { id: params.room_id}});
+             let c=roomExist.roomAval-params.roomAvail;
+            await RoomModel.update({roomAval:c},{ where: { id: params.room_id}});
  
-            roomExist.dataValues.status="BOOKED";
-            //console.log(roomExist.dataValues);
-            //roomExist.status="BOOKED";
-            //console.log(doExist);
-
             
-
-            
-
-            //console.log(params);
             
             const newUser = await BookingModel.create({...params});
 
-            //Logger.info('Admin registration successfully completed for user %d', params.mobileNumber);
+            
             console.log("completed");        
             return this.success({ statusCode: 201 });
         
         } catch (error) {
-            //Logger.error(`Admin register service failed for user ${params.mobileNumber}. Error: ${error}`);
+           
             throw (error);
         }
     }
 
     async loginService(params) {
         try {
-            //Logger.info('Login Service Started for User having id - %d', params.mobileNumber);
+            
             let user = await UserModel.findOne({ where: { phone: params.phone } });
 
             const includeModel = {};
@@ -171,8 +136,7 @@ class UserService extends Service {
             }
 
             console.log(user.password);
-            // const salt= bcrypt.genSaltSync(10);
-            // params.password =  bcrypt.hashSync(params.password, salt);
+            
             console.log(params.password);
             if (!await bcrypt.compare(params.password, user.password)) {
                 throw this.fail({ message: 'Invalid Password', statusCode: 401 });
@@ -187,12 +151,65 @@ class UserService extends Service {
                 userType: user.userType
             }, jwtOption.secret, { expiresIn: jwtOption.expiresIn, algorithm: 'HS512' });
 
-            //Logger.info('Login service completed for User having id - %d', params.mobileNumber);
+            
             return this.success({ statusCode: 200, token: jwtToken, data: user });
         } catch (error) {
-            //Logger.error('Login Service Failed for User having mobileNumber - %s with error -> %s', params.mobileNumber, JSON.stringify(error));
+            
             throw (error);
         }
+    }
+
+    async getBillService(params){
+        try{
+            const filter = { 
+                where: {
+                    userId: params.userId
+                 }, 
+                group:['userId'],
+                attributes:['userId','roomPrice','roomNo','hotelId','roomId'],
+                include: [
+                    {
+                        model: UserModel,
+                        attributes: ['firstName', 'lastName'],
+                        include: [
+                            {
+                                model: RoomModel,
+                                where: {
+                                    
+                                   
+                                },
+                                attributes:['id','hotelId','roomType','bedType']
+                            }
+                        ]
+                    }
+                ]
+            };
+            console.log(params.userId);
+            
+            let data;
+            
+            let totalCounts;
+            
+            data = await BillModel.findAll({where: filter.where,include:filter.include, attributes: filter.attributes});
+            data = data.reduce((prev, curr)=>{
+                if(prev.findIndex(item => item.userId=== curr.userId) === -1){
+                    const totalAmount = curr.user.rooms.reduce((sum, room)=>{
+                        return sum + room.bills.roomNo*room.bills.roomPrice;
+                    }, 0);
+                    curr.dataValues.totalAmount = totalAmount;
+                    console.log(curr);
+                    prev.push(curr);
+                    return prev;
+                }
+                return prev;
+            }, []);
+
+            return this.success({ statusCode: 200, data });
+           
+        }catch(error){
+            throw (error);
+        }
+
     }
 }
 module.exports = new UserService();

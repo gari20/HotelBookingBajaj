@@ -20,10 +20,7 @@ const RoomModel = Sequelize.define('rooms', {
     roomType:DataTypes.STRING,
     bedType:DataTypes.STRING,
     roomPrice:DataTypes.INTEGER,
-    status:{ 
-        type:DataTypes.STRING,
-        defaultValue:"Active"
-        }
+    roomAval:DataTypes.INTEGER
     
     
 });

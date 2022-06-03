@@ -2,12 +2,7 @@ const HotelService=require('../service/HotelService');
 
 const hotelRegisterController = async (req, res, next)=> {
     try {
-        //Util.checkInputError(req);
-        //console.log(req.body);
-        //const body1 = req.body;
        
-        //console.log(req);
-        //console.log(body1);
         const response = await HotelService.hotelRegisterService(req.body);
         res.status(response.statusCode).json(response);
     } catch (error) {
@@ -18,9 +13,8 @@ const hotelRegisterController = async (req, res, next)=> {
 
 const roomInfoController = async (req, res, next)=> {
     try {
-        //Util.checkInputError(req);
-        //console.log(req.body);
-        const body1 = req.userType;
+        
+        
        
         if(req.userType!=="HOTEL"){
         let err = new Error('Access denied');
@@ -29,8 +23,8 @@ const roomInfoController = async (req, res, next)=> {
         throw err;
         }
         req.body.hotelId=req.userId;
-           console.log(req.userId);
-        //console.log(body1);
+           
+        
         const response = await HotelService.roomInfoService(req.body);
         res.status(response.statusCode).json(response);
     } catch (error) {
@@ -41,11 +35,9 @@ const roomInfoController = async (req, res, next)=> {
 
 const hotelInfoController = async (req, res, next)=> {
     try {
-        //Util.checkInputError(req);
-        //console.log(req.body);
-        const body1 = req.userType;
-        //body1.sellerUserIdFK =  req.userId;
-        //console.log(req);
+        
+       
+        
         if(req.userType!=="HOTEL"){
         let err = new Error('Access denied');
         err.status = 400;
@@ -53,8 +45,7 @@ const hotelInfoController = async (req, res, next)=> {
         throw err;
         }
         req.body.userId=req.userId;
-           console.log(req.userType);
-        //console.log(body1);
+           
         const response = await HotelService.hotelInfoService(req.body);
         res.status(response.statusCode).json(response);
     } catch (error) {
@@ -65,7 +56,7 @@ const hotelInfoController = async (req, res, next)=> {
     const fetchReqController = async (req, res, next)=> {
         try {
             
-            const body1 = req.userType;
+            
             
             if(req.userType!=="HOTEL"){
             let err = new Error('Access denied');
@@ -84,8 +75,7 @@ const hotelInfoController = async (req, res, next)=> {
 const updateController  = async (req, res, next)=> {
     try {
         
-        //const body1 = req.userType;
-        
+       
         if(req.userType!=="HOTEL"){
         let err = new Error('Access denied');
         err.status = 400;
@@ -109,6 +99,8 @@ const createBill = async (req,res,next)=>{
             err.whateverElse = "Access denied";
             throw err;
         }
+
+        req.body.hotelId=req.userId;
 
         const response = await HotelService.createBillService(req.body);
         res.status(response.statusCode).json(response);

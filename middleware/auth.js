@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const Config = require('../config/db.config');
 
 module.exports = (req, res, next) => {
-  // req.get() help to fetch data from header
+  
   const authHeader = req.get("Authorization");
   if (!authHeader) {
     const error = new Error("Not authorized");

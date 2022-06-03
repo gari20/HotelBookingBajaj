@@ -9,7 +9,7 @@ const {HotelModel,CityModel,StateModel, UserModel, BookingModel, RoomModel}=requ
 
 //setup the server port
 const port=process.env.PORT||3000;
-//define route
+
 //app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -30,14 +30,13 @@ const BillModel = require("./models/bill");
 
 
 
-//create users
-//app.use(express.json());
+//define route
 app.use("/",sharedRoutes)
 app.use("/user",userRoutes);
 app.use("/hotel",hotelRoutes);
 app.use("/admin",adminRoutes);
 
-//app.use("/api/v1/employees/:id",employeeRoutes);
+
 //listen to the port
 app.listen(port,()=>{
     console.log(`server is running on ${port}`);
@@ -48,13 +47,15 @@ app.listen(port,()=>{
 //associations
 HotelModel.belongsTo(CityModel, { foreignKey: "cityIdFk"});
 HotelModel.belongsTo(UserModel,{foreignKey:"userId"});
-//HotelModel.belongsTo(RoomModel,{foreignKey:"roomId"});
+
 BillModel.belongsTo(UserModel,{foreignKey:"userId"});
 BillModel.belongsTo(HotelModel,{foreignKey:"hotelId"});
 BillModel.belongsTo(RoomModel,{foreignKey:"roomId"});
-//UserModel.belongsToMany(RoomModel,{through:BillModel});
-//RoomModel.belongsTo(BillModel,{foreignKey:"roomId"});
+UserModel.belongsToMany(RoomModel, {through: BillModel});
+
+HotelModel.hasMany(RoomModel);
 RoomModel.belongsTo(HotelModel,{foreignKey:"hotelId"});
+
 CityModel.belongsTo(StateModel, { foreignKey: "stateIdFk"});
 BookingModel.belongsTo(UserModel,{ foreignKey:"user_id"});
 BookingModel.belongsTo(HotelModel,{foreignKey:"hotel_id"});
@@ -71,7 +72,7 @@ Sequelize
                 onError(err);
             }
             console.log('Server Listening on port: ' + port);
-                   //Sequelize.sync();
+                   Sequelize.sync();
         });
     })
     .catch(err => {
@@ -79,7 +80,7 @@ Sequelize
     });
 
 function onError(error) {
-    // handle specific listen errors with friendly messages
+    
     switch (error.code) {
         case 'EACCES':
             console.log(process.env.PORT + ' requires elevated privileges')

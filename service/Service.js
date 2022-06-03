@@ -1,12 +1,12 @@
 class Service {
 
-    success({ statusCode, token = undefined, data = [], totalCounts = null }) {
+    success({ statusCode, token = undefined, data = [] }) {
         return {
             status: 'success',
             statusCode,
             token,
             data,
-            totalCounts
+            
         };
     }
 
