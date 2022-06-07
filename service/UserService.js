@@ -184,11 +184,15 @@ class UserService extends Service {
                     }
                 ]
             };
-            console.log(params.userId);
+            
             
             let data;
             
             let totalCounts;
+            const result=await BillModel.findOne({where:{"userId":params.userId}});
+
+            if(result)
+            {
             
             data = await BillModel.findAll({where: filter.where,include:filter.include, attributes: filter.attributes});
             data = data.reduce((prev, curr)=>{
@@ -203,8 +207,14 @@ class UserService extends Service {
                 }
                 return prev;
             }, []);
+        
+           
 
             return this.success({ statusCode: 200, data });
+        }else{
+            throw this.fail({message:"No data found",statusCode:404});
+        }
+            
            
         }catch(error){
             throw (error);

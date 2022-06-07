@@ -1,7 +1,7 @@
 const bcrypt=require('bcrypt');
 const Service=require('../service/Service');
 const UserModel=require('../models/user');
-const { BookingModel, HotelModel, CityModel, StateModel } = require('../models');
+const { BookingModel, HotelModel, CityModel, StateModel, BillModel } = require('../models');
 class AdminService extends Service {
 
     async adminRegisterService(params){
@@ -14,7 +14,7 @@ class AdminService extends Service {
 
             const isExist = await UserModel.findOne({ where: {"phone": params.phone } })
             if(isExist){
-                throw this.fail({ message: 'User++ already exists', statusCode: 406 });
+                throw this.fail({ message: 'User already exists', statusCode: 406 });
             }
             
             const salt= bcrypt.genSaltSync(10);
@@ -82,6 +82,45 @@ class AdminService extends Service {
         } catch (error) {
             
             throw (error);
+        }
+    }
+
+    async deleteUserService(params){
+        try{
+
+            const {id}=params;
+
+            const ifExist=await UserModel.findOne({where:{"id":id}});
+            if(!ifExist){
+                throw this.fail({message:"User doesn't Exist"});
+            }
+
+            const billExist=await BillModel.findOne({where:{"userId":id}});
+            if(billExist){
+                throw this.fail({message:"Booking exists with this user"});
+            }
+            
+            const bookExist=await BookingModel.findOne({where:{"user_id":id}});
+            if(bookExist){
+                throw this.fail({message:"Booking exists with this user"});
+            }
+
+            const hotelExist=await HotelModel.findOne({where:{"userId":id}});
+            if(hotelExist){
+                throw this.fail({message:"Hotel exists with this user"});
+            }
+            
+            
+            
+            
+            await UserModel.destroy( { where: { "id" : id }});
+            
+
+            return this.success({ statusCode: 202 });
+
+        }
+        catch(err){
+            throw(err);
         }
     }
 }

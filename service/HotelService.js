@@ -52,6 +52,12 @@ class HotelService extends Service {
 
     async hotelInfoService(params){
         try{
+
+            const city=await CityModel.findOne({where:{"id":params.cityIdFk}});
+            console.log(city);
+            if(!city){
+                throw this.fail({message:"City Doesnt Exist", statusCode: 406});
+            }
             
            
             
@@ -219,6 +225,109 @@ class HotelService extends Service {
             return this.success({ statusCode: 200, data });
            
         } catch(err) {
+            throw(err);
+        }
+    }
+
+
+    async changeStatusService(params,body){
+        try{
+
+            const {id}=params;
+
+            const ifExist=await BillModel.findOne({where:{"id":id}});
+            if(!ifExist){
+                throw this.fail({message:"Bill doesn't Exist"});
+            }
+            
+            
+            BillModel.update({ ...body }, { where: { "id" : id }});
+            
+
+            return this.success({ statusCode: 202 });
+
+        }
+        catch(err){
+            throw(err);
+        }
+    }
+
+    async deleteRoomService(params){
+        try{
+
+            const {id}=params;
+
+            const ifExist=await RoomModel.findOne({where:{"id":id}});
+
+            if(!ifExist){
+                throw this.fail({message:"Room doesn't Exist"});
+            }
+            if(ifExist.hotelId!=params.userId){
+                throw this.fail({message:"Not authorized to delete room of another hotel"})
+            }
+            
+            const billExist=await BillModel.findOne({where:{"roomId":id}});
+            if(billExist){
+                throw this.fail({messgae:"Booking exists with this room"});
+            }
+            
+            const bookExist=await BookingModel.findOne({where:{"room_id":id}});
+            if(bookExist){
+                throw this.fail({message:"Booking exists with this room"});
+            }
+            
+            await RoomModel.destroy( { where: { "id" : id }});
+            
+
+            return this.success({ statusCode: 202 });
+
+        }
+        catch(err){
+            throw(err);
+        }
+    }
+
+    async deleteBillService(params){
+        try{
+
+            const {id}=params;
+
+            const ifExist=await BillModel.findOne({where:{"id":id}});
+            if(!ifExist){
+                throw this.fail({message:"Bill doesn't Exist"});
+            }
+            
+            
+            
+            await BillModel.destroy( { where: { "id" : id }});
+            
+
+            return this.success({ statusCode: 202 });
+
+        }
+        catch(err){
+            throw(err);
+        }
+    }
+
+    async deleteBookingService(params){
+        try{
+
+            const {id}=params;
+
+            const ifExist=await BookingModel.findOne({where:{"booking_id":id}});
+            if(!ifExist){
+                throw this.fail({message:"Booking doesn't Exist"});
+            }
+            
+            
+            await BookingModel.destroy( { where: { "booking_id" : id }});
+            
+
+            return this.success({ statusCode: 202 });
+
+        }
+        catch(err){
             throw(err);
         }
     }

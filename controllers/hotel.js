@@ -82,7 +82,7 @@ const updateController  = async (req, res, next)=> {
         err.whateverElse = "Access denied";
         throw err;
         }
-        req.body.userId=req.userId;
+        
         const response = await HotelService.updateService(req.body);
         res.status(response.statusCode).json(response);
     } catch (error) {
@@ -132,5 +132,79 @@ const previewBillController= async (req,res,next)=>{
     }
 }
 
+const changeStatusController  = async (req, res, next)=> {
+    try {
+        
+       
+        if(req.userType!=="HOTEL"){
+        let err = new Error('Access denied');
+        err.status = 400;
+        err.whateverElse = "Access denied";
+        throw err;
+        }
+        
+        const response = await HotelService.changeStatusService(req.params,req.body);
+        res.status(response.statusCode).json(response);
+    } catch (error) {
+        next(error);
+    }
+}
 
-module.exports={hotelRegisterController,roomInfoController,hotelInfoController,fetchReqController,updateController,createBill,previewBillController};
+const deleteRoomController  = async (req, res, next)=> {
+    try {
+        
+       
+        if(req.userType!=="HOTEL"){
+        let err = new Error('Access denied');
+        err.status = 400;
+        err.whateverElse = "Access denied";
+        throw err;
+        }
+        
+        const response = await HotelService.deleteRoomService(req.params,req.body);
+        res.status(response.statusCode).json(response);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteBillController  = async (req, res, next)=> {
+    try {
+        
+       
+        if(req.userType!=="HOTEL"){
+        let err = new Error('Access denied');
+        err.status = 400;
+        err.whateverElse = "Access denied";
+        throw err;
+        }
+        
+        const response = await HotelService.deleteBillService(req.params,req.body);
+        res.status(response.statusCode).json(response);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteBookingController  = async (req, res, next)=> {
+    try {
+        
+       
+        if(req.userType!=="HOTEL"){
+        let err = new Error('Access denied');
+        err.status = 400;
+        err.whateverElse = "Access denied";
+        throw err;
+        }
+        
+        const response = await HotelService.deleteBookingService(req.params,req.body);
+        res.status(response.statusCode).json(response);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+
+
+module.exports={hotelRegisterController,roomInfoController,hotelInfoController,fetchReqController,updateController,createBill,previewBillController,changeStatusController, deleteRoomController, deleteBillController,deleteBookingController};

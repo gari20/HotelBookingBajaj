@@ -6,6 +6,43 @@ const path = require('path');
 const cors = require('cors');
 const { Sequelize } = require('./Utils');
 const {HotelModel,CityModel,StateModel, UserModel, BookingModel, RoomModel}=require('./models');
+const swaggerJSDoc=require('swagger-jsdoc');
+const swaggerUi=require('swagger-ui-express');
+
+const options={
+    definition:{
+        openapi : '3.0.0',
+        info : {
+            title : 'Hotel Booking Project',
+            version : '1.0.0'
+        },
+        servers:[
+            {
+                url : 'http://localhost:3000/'
+            }
+        ]
+    },
+    components: {
+        securitySchemes: {
+          jwt: {
+            type: "http",
+            scheme: "bearer",
+            in: "header",
+            bearerFormat: "JWT"
+          },
+        }
+      },
+
+      
+      security: [{
+        jwt: {}
+      }],
+    swagger: "2.0",
+    
+    apis:['./routes/*.js']
+}
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/api-docs',swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //setup the server port
 const port=process.env.PORT||3000;
@@ -15,10 +52,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 
-app.post("/",function(req,res,next){
-    console.log(req.body);
-    res.send("hi");
-})
 
 
 //importing

@@ -1,3 +1,5 @@
+const { response } = require("express");
+
 class Service {
 
     success({ statusCode, token = undefined, data = [] }) {
@@ -10,9 +12,13 @@ class Service {
         };
     }
 
-    fail({ message = "Something went wrong", statusCode = 500 }) {
+    fail({ message = "something is missing", statusCode = 500}) {
         const error = new Error(message);
-        error.statusCode = statusCode;
+        console.log(error);
+        
+        error.statusCode=statusCode;
+        
+        
         return error;
     }
 }
