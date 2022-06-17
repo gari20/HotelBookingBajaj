@@ -1,4 +1,5 @@
 const HotelService=require('../service/HotelService');
+const HotelModel=require('../models');
 
 const hotelRegisterController = async (req, res, next)=> {
     try {
@@ -22,10 +23,10 @@ const roomInfoController = async (req, res, next)=> {
         err.whateverElse = "Access denied";
         throw err;
         }
-        req.body.hotelId=req.userId;
-           
         
-        const response = await HotelService.roomInfoService(req.body);
+        
+        
+        const response = await HotelService.roomInfoService(req.body,req);
         res.status(response.statusCode).json(response);
     } catch (error) {
         next(error);
@@ -100,9 +101,9 @@ const createBill = async (req,res,next)=>{
             throw err;
         }
 
-        req.body.hotelId=req.userId;
+        
 
-        const response = await HotelService.createBillService(req.body);
+        const response = await HotelService.createBillService(req.body,req);
         res.status(response.statusCode).json(response);
 
 

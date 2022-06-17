@@ -105,7 +105,7 @@ Sequelize
                 onError(err);
             }
             console.log('Server Listening on port: ' + port);
-                   Sequelize.sync();
+                  //Sequelize.sync({force:true});
         });
     })
     .catch(err => {

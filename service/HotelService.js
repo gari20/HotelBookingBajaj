@@ -8,12 +8,12 @@ class HotelService extends Service {
 
     async hotelRegisterService(params){
         try{
-            console.log(params);
+            
             
             console.log("Registration service for hotel started");
             
             params.userType = 'HOTEL';
-            console.log(params.phone);
+            
 
             const isExist = await UserModel.findOne({ where: {"phone": params.phone } })
             if(isExist){
@@ -35,14 +35,23 @@ class HotelService extends Service {
         }
     }
 
-    async roomInfoService(params){
+    async roomInfoService(params,req){
         try{
             
-           const newUser = await RoomModel.create({ ...params});
 
+            const isHotel=await HotelModel.findOne({where:{"userId":req.userId}});
+             console.log(isHotel.id);
+             if(!isHotel){
+                throw this.fail({message:'Hotel does not exists'});
+             }
+            params.hotelId=isHotel.id;
+
+           const newUser = await RoomModel.create({ ...params});
+            console.log(params);
             
             console.log("completed");        
             return this.success({ statusCode: 201 });
+            
         
         } catch (error) {
             
@@ -123,7 +132,7 @@ class HotelService extends Service {
             
             
             
-            console.log(params.userId);
+            
             const isHotel = await HotelModel.findByPk(params.userId);
             if(!isHotel)
                 throw this.fail({ message: 'Hotel doesn\'t exist', statusCode: 404 });
@@ -138,10 +147,11 @@ class HotelService extends Service {
         }
     }
 
-    async createBillService(params){
+    async createBillService(params,req){
         try{
+
             
-            const isExist = await HotelModel.findOne({ where: {"id":params.hotelId } })
+            const isExist = await HotelModel.findOne({ where: {"userId":req.userId } })
             if(!isExist){
                 throw this.fail({ message: 'Hotel does not exist', statusCode: 406 });
             }
@@ -156,6 +166,7 @@ class HotelService extends Service {
                 throw this.fail({message:'Room do not exist',statusCode:406})
             }
 
+            params.hotelId=isExist.id;
             
 
               
@@ -178,10 +189,10 @@ class HotelService extends Service {
     
     async previewBillService(params){
         try{
-            
+            const isHotel=await HotelModel.findOne({where:{"userId":params.userId}})
             const filter = { 
                 where: {
-                    hotelId: params.userId
+                    hotelId: isHotel.id
                  }, 
                 group:['userId'],
                 attributes:['userId','roomPrice','roomNo','hotelId','roomId'],
@@ -193,7 +204,7 @@ class HotelService extends Service {
                             {
                                 model: RoomModel,
                                 where: {
-                                    hotelId: params.userId
+                                    hotelId: isHotel.id
                                 },
                                 attributes:['id','hotelId','roomType','bedType']
                             }

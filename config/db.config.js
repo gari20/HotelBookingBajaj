@@ -1,10 +1,11 @@
 module.exports = {
     sqlDb: {
-        host: process.env.SERVER_HOST || 'localhost',
-        dbUser : process.env.DB_USER || 'root',
-        dbPassword : process.env.DB_PASSWORD || '',
-        dbName : process.env.DB_NAME || 'hotelbooking'
+        host:  'localhost',
+        dbUser : 'root',
+        dbPassword : '',
+        dbName :  'hotelbooking'
     },
+    
     jwtOption: {
         secret: 'ausad4dcas68cas68c165cs546sadf46sd5f4s6d5s6df541s61sdc8sd64sa4r8g4dsfbciksahdkajsdfas',
         expiresIn: '45d'

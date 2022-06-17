@@ -15,7 +15,7 @@ class UserService extends Service {
             console.log("Registration service for user started");
             
             params.userType = 'USER';
-            console.log(params.phone);
+            
 
             const isExist = await UserModel.findOne({ where: {"phone": params.phone } })
             if(isExist){
@@ -135,9 +135,7 @@ class UserService extends Service {
                 throw this.fail({ message: 'User doesn\'t exists', statusCode: 404 });
             }
 
-            console.log(user.password);
             
-            console.log(params.password);
             if (!await bcrypt.compare(params.password, user.password)) {
                 throw this.fail({ message: 'Invalid Password', statusCode: 401 });
             }
